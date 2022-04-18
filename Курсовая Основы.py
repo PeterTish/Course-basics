@@ -93,14 +93,12 @@ def json_file():
 
 import os
 
-path = os.getcwd()
-file = os.listdir(path)
-files_jpg = [i for i in file if i.endswith('.jpg')]
-
-
 if __name__ == '__main__':
     saved_photo(get_photo)
     json_file()
+    path = os.getcwd()
+    file = os.listdir(path)
+    files_jpg = [i for i in file if i.endswith('.jpg')]
     with open('token ya.txt', 'r') as file:
         token = file.read().strip()
 
