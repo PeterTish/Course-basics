@@ -44,20 +44,35 @@ def get_photo():
 def saved_photo():
     '''Функция сохраняет фотографии (именем является количество лайков), если фотография с таким именем уже существует
     сохраняется фотография с именем 63.420810960, где 63 - количество лайков, 420810960 - id фотографии'''
-    # photos_list = get_photo()
-    # path = os.getcwd()
+    photos_list = get_photo()
+    json_output = {}
+    json_output_list = []
     for dict in photos_list:
         api = requests.get(dict['url_photos'])
-        check = os.path.exists(f'{dict["name_photos"]}.jpg')
+
+        id = dict["id_photos"]
+        name = dict["name_photos"]
+        name_id = f'{name}.{id}'
+        size = dict["size"]
+
+        check = os.path.exists(f'{name}.jpg')
         if check == False:
-            print(f'File {dict["name_photos"]}.jpg saved')
-            with open(f'{dict["name_photos"]}.jpg','wb') as file:
+            json_output = {"file_name":name, "size":size}
+
+            print(f'File {name}.jpg saved')
+            with open(f'{name}.jpg','wb') as file:
                     file.write(api.content)
         else:
-            print(f'File {dict["name_photos"]}.jpg exists, saved as {str(dict["name_photos"])}.{str(dict["id_photos"])}.jpg')
-            with open(f'{str(dict["name_photos"])}.{str(dict["id_photos"])}.jpg', 'wb') as file:
+            json_output = {"file_name": name_id, "size": size}
+
+            print(f'File {name}.jpg exists, saved as {name_id}.jpg')
+            with open(f'{name_id}.jpg', 'wb') as file:
                 file.write(api.content)
-    return 'files saved'
+
+        json_output_list.append(json_output)
+        with open('photo_file.json', 'w') as f:
+            json.dump(json_output_list, f)
+    return json_output_list
 
 
 class YaUploader:
@@ -89,31 +104,6 @@ class YaUploader:
         if response.status_code == 201:
             print(f"File {file_name} upload")
 
-def json_file():
-    json_output_list = []
-    for p in photos_list:
-        del p['url_photos']
-        del p['id_photos']
-        json_output_list.append(p)
-        with open('photo_file.json', 'w') as f:
-            json.dump(json_output_list, f)
-
-
-# def json_file():
-#     json_output = {}
-#     json_output_list = []
-#
-#     for files in files_jpg:
-#         file_name = files
-#         for p in photos:
-#             size = p['sizes'][-1]['type']
-#         json_output = {'file_name':file_name, 'size':size}
-#         json_output_list.append(json_output)
-#
-#         with open('photo_file.json', 'w') as f:
-#             json.dump(json_output_list, f)
-#     return json_output_list
-
 
 if __name__ == '__main__':
     photos = json_photos(url)
@@ -125,7 +115,6 @@ if __name__ == '__main__':
     file = os.listdir(path)
     files_jpg = [i for i in file if i.endswith('.jpg')]
 
-    json_file()
 
     with open('token ya.txt', 'r') as file:
         token = file.read().strip()
